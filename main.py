@@ -10,8 +10,6 @@ from Utils.config import (
     OUTPUT_NAME_VIDEO
 )
 
-from Utils.edge_detection import canny_edge_detection
-from Utils.field_mask import field_mask
 from Utils.line_detection import line_detection
 
 

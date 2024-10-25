@@ -1,8 +1,6 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from Utils.field_mask import field_mask
-from Utils.edge_detection import canny_edge_detection
 
 
 def field_mask(frame):
@@ -64,5 +62,58 @@ def line_detection(frame):
     # Extract only the field using the mask
     only_field = cv2.bitwise_and(frame, fieldmask)
 
-    return only_field
+
+    gray = cv2.cvtColor(only_field, cv2.COLOR_BGR2GRAY)
+
+    """
+    # Initialize parameters
+    tau = 8  # Distance in pixels to check
+    threshold = 15  # Brightness threshold for classification
+
+    # Create a binary image initialized to black
+    binary_image = np.zeros_like(gray)
+
+    # Get dimensions of the image
+    height, width = gray.shape
+
+    # Loop through each pixel in the image
+    for y in range(tau, height - tau):
+        for x in range(tau, width - tau):
+            candidate_pixel = gray[y, x]
+            surrounding_brightness = []
+            
+            # Check the surrounding pixels and add valid ones to the list
+            if y - tau >= 0:  # Check above
+                surrounding_brightness.append(gray[y - tau, x])
+            if y + tau < height:  # Check below
+                surrounding_brightness.append(gray[y + tau, x])
+            if x - tau >= 0:  # Check left
+                surrounding_brightness.append(gray[y, x - tau])
+            if x + tau < width:  # Check right
+                surrounding_brightness.append(gray[y, x + tau])
+
+            # Only proceed if there are surrounding pixels to compare with
+            if surrounding_brightness:
+                avg_surrounding_brightness = np.mean(surrounding_brightness)
+
+                # Check if the candidate pixel is significantly brighter than the average
+                if candidate_pixel > avg_surrounding_brightness + threshold:
+                    binary_image[y, x] = 255  # Classify as white pixel
+                else:
+                    binary_image[y, x] = 0    # Classify as black pixel
+    binary_image = cv2.cvtColor(binary_image, cv2.COLOR_GRAY2BGR)
+    """
+    
+    # THRESHOLDING
+    #_, binary = cv2.threshold(gray, 115, 255, cv2.THRESH_BINARY)
+    #kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))  # Structuring element for morphological operations
+    #binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
+
+    # CANNY EDGE DETECTION
+
+    
+
+
+
+    return gray
 
