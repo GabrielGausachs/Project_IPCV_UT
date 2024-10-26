@@ -1,16 +1,16 @@
 import cv2
 
 
-def line_detection(frame):
+def detect_lines(frame):
     # Step 4: Combine Laplacian and Canny edge detection with Gaussian blur
-    blurred = cv2.GaussianBlur(frame, (3, 3), 2)
+    blurred = cv2.GaussianBlur(frame, (1, 1), 3)
 
     # Laplacian edge detection
-    laplacian_edges = cv2.Laplacian(blurred, cv2.CV_8U, delta=1)
+    laplacian_edges = cv2.Laplacian(blurred, cv2.CV_8U, delta=3, ksize=5)
 
     # Canny edge detection
-    low_threshold = 100
-    high_threshold = 150
+    low_threshold = 40
+    high_threshold = 70
     canny_edges = cv2.Canny(blurred, low_threshold, high_threshold)
 
     # Convert Laplacian and Canny results to 3-channel (BGR) if needed
