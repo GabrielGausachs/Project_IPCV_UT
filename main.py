@@ -11,7 +11,7 @@ from Utils.config import (
 )
 
 # from Utils.line_detection import line_detection
-from Utils.line_detection_ani import detect_lines
+from Utils.line_detection_ani import detecting_lines_intersection_points
 
 
 def main(input_video_file: str, output_video_file: str):
@@ -33,16 +33,7 @@ def main(input_video_file: str, output_video_file: str):
             if cv2.waitKey(28) & 0xFF == ord("q"):
                 break
 
-            frame_b = detect_lines(frame)
-            frame = cv2.cvtColor(frame_b, cv2.COLOR_GRAY2BGR)
-
-            lines = cv2.HoughLinesP(frame_b, rho=1, theta=np.pi/180, threshold=50, minLineLength=80, maxLineGap=10)
-            print(lines.shape)
-            # Draw the detected lines on the original image
-            if lines is not None:
-                for line in lines:
-                    x1, y1, x2, y2 = line[0]
-                    cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            frame = detecting_lines_intersection_points(frame)
 
             # Perform Canny edge detection on the frame
             # blurred, edges = canny_edge_detection(frame)

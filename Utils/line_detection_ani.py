@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import math
 
 
 def mask_field(frame, num=10):
@@ -54,6 +55,97 @@ def detect_lines(frame):
     combined_edges = cv2.morphologyEx(combined_edges, cv2.MORPH_CLOSE, kernel)
 
     return combined_edges
+
+def intersection(o1, p1, o2, p2):
+    """Find the intersection of two line segments (o1, p1) and (o2, p2).
+    
+    Args:
+        o1: Starting point of the first line segment (x1, y1).
+        p1: Ending point of the first line segment (x2, y2).
+        o2: Starting point of the second line segment (x3, y3).
+        p2: Ending point of the second line segment (x4, y4).
+
+    Returns:
+        A tuple (x, y) of the intersection point if it exists,
+        or None if the line segments do not intersect.
+    """
+    # Convert points to numpy arrays
+    o1, p1, o2, p2 = map(np.array, [o1, p1, o2, p2])
+
+    # Direction vectors
+    d1 = p1 - o1  # Vector for the first line segment
+    d2 = p2 - o2  # Vector for the second line segment
+    x = o2 - o1   # Vector from the start of line 1 to the start of line 2
+
+    # Calculate the cross product
+    cross = d1[0] * d2[1] - d1[1] * d2[0]
+
+    # Check if lines are parallel
+    if abs(cross) < 1e-8:
+        return None  # Lines are parallel, no intersection
+
+    # Calculate t1 parameter
+    t1 = (x[0] * d2[1] - x[1] * d2[0]) / cross
+
+    # Calculate intersection point
+    r = o1 + d1 * t1
+    if (min(o1[0], p1[0]) <= r[0] <= max(o1[0], p1[0]) and 
+        min(o1[1], p1[1]) <= r[1] <= max(o1[1], p1[1]) and 
+        min(o2[0], p2[0]) <= r[0] <= max(o2[0], p2[0]) and 
+        min(o2[1], p2[1]) <= r[1] <= max(o2[1], p2[1])):
+        return (int(round(r[0])), int(round(r[1])))
+    return None
+
+def is_duplicate_angle(angle, existing_lines, angle_tolerance=3.5):
+    
+    for existing in existing_lines:
+        existing_angle = existing[5]
+        
+        # Check if the angles are within the specified tolerance
+        if abs(existing_angle - angle) < angle_tolerance:
+            return True
+    return False
+
+def detecting_lines_intersection_points(frame):
+    edges = detect_lines(frame)
+
+    vertical_lines = []
+    horizontal_lines = []
+
+    frame = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+
+    lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi/180, threshold=50, minLineLength=80, maxLineGap=10)
+    # Draw the detected lines on the original image
+    if lines is not None:
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+
+            # Calculate the angle of the line in degrees and the length
+            angle = math.degrees(math.atan2(y2 - y1, x2 - x1))
+            length = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+            if -10 < angle < 10:  # Tolerance for horizontal (close to 0 degrees)
+                horizontal_lines.append((x1, y1, x2, y2, length, angle))
+                cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+            # Classify as vertical if angle is close to 90 or -90 degrees, otherwise horizontal
+            else:  # Tolerance for vertical (close to 90 degrees)
+                vertical_lines.append((x1, y1, x2, y2,length,angle))
+                cv2.line(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
+    
+    horizontal_lines_sorted = sorted(horizontal_lines, key=lambda line: line[4], reverse=True)
+    vertical_lines_sorted = sorted(vertical_lines, key=lambda line: line[4], reverse=True)
+    for h in horizontal_lines_sorted:
+        for v in vertical_lines_sorted:
+            inters = intersection((h[0],h[1]),(h[2],h[3]),(v[0],v[1]),(v[2],v[3]))
+            print(inters)
+            if inters:
+                cv2.circle(frame, inters, radius=10, color=(0, 0, 255), thickness=1)
+
+
+    return frame
+
+
 
 
 # def detect_lines(frame):
