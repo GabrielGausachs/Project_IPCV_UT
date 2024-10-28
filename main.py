@@ -34,6 +34,15 @@ def main(input_video_file: str, output_video_file: str):
                 break
 
             frame = detect_lines(frame)
+            frame_color = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+
+            lines = cv2.HoughLinesP(frame, rho=1, theta=np.pi/180, threshold=50, minLineLength=80, maxLineGap=10)
+            print(lines.shape)
+            # Draw the detected lines on the original image
+            if lines is not None:
+                for line in lines:
+                    x1, y1, x2, y2 = line[0]
+                    cv2.line(frame_color, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
             # Perform Canny edge detection on the frame
             # blurred, edges = canny_edge_detection(frame)
@@ -44,7 +53,7 @@ def main(input_video_file: str, output_video_file: str):
             # cv2.imshow("Edges", edges)
 
             # (optional) display the resulting frame
-            cv2.imshow("Frame", frame)
+            cv2.imshow("Frame", frame_color)
 
             cv2.resizeWindow("Frame", frame_width, frame_height)
 
