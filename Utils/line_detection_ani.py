@@ -17,8 +17,8 @@ def mask_field(frame, num=10):
     print(min_hue, max_hue)
 
     # # Define range for green color (field)
-    lower_green = np.array([38, 45, 0])  # Adjust these values as needed
-    upper_green = np.array([55, 255, 220])
+    lower_green = np.array([min_hue, 50, 50])  # Adjust these values as needed
+    upper_green = np.array([max_hue, 255, 255])
     field_mask = cv2.inRange(im_hsv, lower_green, upper_green)
 
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(field_mask)
@@ -32,29 +32,54 @@ def mask_field(frame, num=10):
 
 
 def detect_lines(frame):
-
     # Convert to HSV and mask green areas
     masked_frame = mask_field(frame)
 
-    # Convert masked image to grayscale
+    # Convert frame to grayscale
     gray = cv2.cvtColor(masked_frame, cv2.COLOR_BGR2GRAY)
 
-    # Step 4: Combine Laplacian and Canny edge detection with Gaussian blur
-    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+    # Apply Gaussian blurs with different sigma values
+    blurred_small = cv2.GaussianBlur(gray, (3, 3), 1)  # Small sigma
+    blurred_large = cv2.GaussianBlur(gray, (5, 5), 3)  # Larger sigma
 
-    # # Laplacian edge detection
-    # laplacian_edges = cv2.Laplacian(blurred, cv2.CV_8U, delta=1, ksize=1)
+    # Perform edge detection on each blurred image
+    edges_small = cv2.Canny(blurred_small, 40, 70)
+    edges_large = cv2.Canny(blurred_large, 80, 100)
 
-    # Canny edge detection
-    low_threshold = 40
-    high_threshold = 70
-    processed_frame = cv2.Canny(blurred, low_threshold, high_threshold)
+    # Combine edges from both scales
+    combined_edges = cv2.bitwise_or(edges_small, edges_large)
 
-    # Convert Laplacian and Canny results to 3-channel (BGR) if needed
-    if len(processed_frame.shape) == 2:  # Convert single-channel Canny to BGR
-        processed_frame = cv2.cvtColor(processed_frame, cv2.COLOR_GRAY2BGR)
+    # Optional: Use morphological operations to clean up the edges
+    kernel = np.ones((3, 3), np.uint8)
+    combined_edges = cv2.morphologyEx(combined_edges, cv2.MORPH_CLOSE, kernel)
 
-    # Combine Laplacian edges with Canny edges
-    # processed_frame = cv2.addWeighted(processed_frame, 0.5, laplacian_edges, 0.5, 0)
+    return combined_edges
 
-    return processed_frame
+
+# def detect_lines(frame):
+
+#     # Convert to HSV and mask green areas
+#     masked_frame = mask_field(frame)
+
+#     # Convert masked image to grayscale
+#     gray = cv2.cvtColor(masked_frame, cv2.COLOR_BGR2GRAY)
+
+#     # Step 4: Combine Laplacian and Canny edge detection with Gaussian blur
+#     blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+
+#     # # Laplacian edge detection
+#     # laplacian_edges = cv2.Laplacian(blurred, cv2.CV_8U, delta=1, ksize=1)
+
+#     # Canny edge detection
+#     low_threshold = 40
+#     high_threshold = 70
+#     processed_frame = cv2.Canny(blurred, low_threshold, high_threshold)
+
+#     # Convert Laplacian and Canny results to 3-channel (BGR) if needed
+#     if len(processed_frame.shape) == 2:  # Convert single-channel Canny to BGR
+#         processed_frame = cv2.cvtColor(processed_frame, cv2.COLOR_GRAY2BGR)
+
+#     # Combine Laplacian edges with Canny edges
+#     # processed_frame = cv2.addWeighted(processed_frame, 0.5, laplacian_edges, 0.5, 0)
+
+#     return processed_frame
