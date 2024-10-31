@@ -11,7 +11,7 @@ from Utils.config import (
 )
 
 # from Utils.line_detection import line_detection
-from Utils.line_detection_ani import detect_lines
+from Utils.line_detection_ani import detecting_lines_intersection_points
 
 
 def main(input_video_file: str, output_video_file: str):
@@ -33,7 +33,7 @@ def main(input_video_file: str, output_video_file: str):
             if cv2.waitKey(28) & 0xFF == ord("q"):
                 break
 
-            frame, edge_frame = detect_lines(frame)
+            frame = detecting_lines_intersection_points(frame)
 
             # Perform Canny edge detection on the frame
             # blurred, edges = canny_edge_detection(frame)
@@ -44,7 +44,7 @@ def main(input_video_file: str, output_video_file: str):
             # cv2.imshow("Edges", edges)
 
             # (optional) display the resulting frame
-            cv2.imshow("Frame", edge_frame)
+            cv2.imshow("Frame", frame)
 
             cv2.resizeWindow("Frame", frame_width, frame_height)
 
