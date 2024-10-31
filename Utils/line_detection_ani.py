@@ -1,5 +1,8 @@
 import cv2
 import numpy as np
+import math
+
+# from skimage.morphology import skeletonize
 
 
 def mask_field(frame, num=10):
@@ -43,17 +46,46 @@ def detect_lines(frame):
     blurred_large = cv2.GaussianBlur(gray, (5, 5), 3)  # Larger sigma
 
     # Perform edge detection on each blurred image
-    edges_small = cv2.Canny(blurred_small, 40, 70)
-    edges_large = cv2.Canny(blurred_large, 80, 100)
+    edges_small = cv2.Canny(blurred_small, 40, 60)
+    edges_large = cv2.Canny(blurred_large, 40, 60)
 
     # Combine edges from both scales
     combined_edges = cv2.bitwise_or(edges_small, edges_large)
 
-    # Optional: Use morphological operations to clean up the edges
-    kernel = np.ones((3, 3), np.uint8)
-    combined_edges = cv2.morphologyEx(combined_edges, cv2.MORPH_CLOSE, kernel)
+    # Use morphological operations to clean up the edges
+    kernel = np.ones((5, 5), np.uint8)
+    final_edges = cv2.dilate(combined_edges, kernel, iterations=1)
+    final_edges = cv2.erode(final_edges, kernel, iterations=1)
 
-    return combined_edges
+    kernel = np.ones((3, 3), np.uint8)
+    final_edges = cv2.dilate(final_edges, kernel, iterations=2)
+    final_edges = cv2.erode(final_edges, kernel, iterations=2)
+
+    final_edges = cv2.morphologyEx(final_edges, cv2.MORPH_CLOSE, kernel)
+
+    # Display intermediate results
+    # cv2.imshow("Dilated Edges", dilated_edges)
+
+    # Copy edges to the images that will display the results in BGR
+    cdst = cv2.cvtColor(final_edges, cv2.COLOR_GRAY2BGR)
+    edge_frame = np.copy(cdst)
+
+    linesP = cv2.HoughLinesP(
+        final_edges, 1, np.pi / 180, 120, minLineLength=100, maxLineGap=20
+    )
+
+    if linesP is not None:
+        for i in range(0, len(linesP)):
+            l = linesP[i][0]
+            cv2.line(frame, (l[0], l[1]), (l[2], l[3]), (0, 0, 255), 2, cv2.LINE_AA)
+            cv2.line(
+                edge_frame, (l[0], l[1]), (l[2], l[3]), (0, 0, 255), 2, cv2.LINE_AA
+            )
+
+    # cv2.imshow("Frame", frame)
+    # cv2.imshow("Edge Frame", edge_frame)
+
+    return frame, edge_frame
 
 
 # def detect_lines(frame):
