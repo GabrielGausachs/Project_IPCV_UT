@@ -44,8 +44,8 @@ def detect_lines(frame):
     blurred_large = cv2.GaussianBlur(gray, (5, 5), 3)  # Larger sigma
 
     # Perform edge detection on each blurred image
-    edges_small = cv2.Canny(blurred_small, 40, 60)
-    edges_large = cv2.Canny(blurred_large, 40, 60)
+    edges_small = cv2.Canny(blurred_small, 40, 70)
+    edges_large = cv2.Canny(blurred_large, 80, 100)
 
     # Combine edges from both scales
     combined_edges = cv2.bitwise_or(edges_small, edges_large)
@@ -61,29 +61,7 @@ def detect_lines(frame):
 
     final_edges = cv2.morphologyEx(final_edges, cv2.MORPH_CLOSE, kernel)
 
-    # Display intermediate results
-    # cv2.imshow("Dilated Edges", dilated_edges)
-
-    # Copy edges to the images that will display the results in BGR
-    cdst = cv2.cvtColor(final_edges, cv2.COLOR_GRAY2BGR)
-    edge_frame = np.copy(cdst)
-
-    linesP = cv2.HoughLinesP(
-        final_edges, 1, np.pi / 180, 120, minLineLength=100, maxLineGap=20
-    )
-
-    if linesP is not None:
-        for i in range(0, len(linesP)):
-            l = linesP[i][0]
-            cv2.line(frame, (l[0], l[1]), (l[2], l[3]), (0, 0, 255), 2, cv2.LINE_AA)
-            cv2.line(
-                edge_frame, (l[0], l[1]), (l[2], l[3]), (0, 0, 255), 2, cv2.LINE_AA
-            )
-
-    # cv2.imshow("Frame", frame)
-    # cv2.imshow("Edge Frame", edge_frame)
-
-    return frame, edge_frame
+    return final_edges
 
 
 def intersection(o1, p1, o2, p2):
