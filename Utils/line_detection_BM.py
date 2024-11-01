@@ -39,6 +39,14 @@ def overlay_advertisement(frame, ad_image, homography_matrix):
         [11.0, -0.25]   
     ], dtype="float32")
 
+    # Enable this to use goal post as reference real-world coordinates for the ad placement
+    # ad_points_real_world = np.array([
+    #     [1.0, -2.5],   # Bottom-left of ad near the sideline
+    #     [5.0, -2.5],  # Bottom-right of ad near the sideline
+    #     [1.0, -0.25],  # Top-left of ad near the goal line
+    #     [5.0, -0.25]  # Top-right of ad near the goal line
+    # ], dtype="float32")
+
     # Transform the real-world ad points to video coordinates using the homography matrix
     ad_points_video = cv2.perspectiveTransform(np.array([ad_points_real_world]), homography_matrix)[0]
 
@@ -106,6 +114,14 @@ def compute_homography(video_points):
     field_points = np.array([
         [0, 0], [7.32, 0], [0, 5.5], [7.32, 5.5]
     ], dtype="float32")
+
+    # Enable this to use Real-world coordinates for the goal post front face (vertical plane)
+    # field_points = np.array([
+    #     [0, 0],         # Point 5: Bottom-left of front face of goal post
+    #     [7.32, 0],      # Point 6: Bottom-right of front face of goal post
+    #     [0, 2.44],      # Point 7: Top-left of front face of goal post
+    #     [7.32, 2.44]    # Point 8: Top-right of front face of goal post
+    # ], dtype="float32")
     video_points = np.array(video_points, dtype="float32")
     H, status = cv2.findHomography(field_points, video_points, cv2.RANSAC)
     return H
