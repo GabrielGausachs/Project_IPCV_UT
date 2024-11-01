@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import math
-
+from sklearn.cluster import DBSCAN
 
 def mask_field(frame, num=10):
     # Convert the image to the HSV color space
@@ -117,6 +117,32 @@ def is_duplicate_angle(angle, existing_lines, angle_tolerance=3.5):
             return True
     return False
 
+def cluster_intersection_points(intersection_points, eps=10, min_samples=1):
+    """Cluster intersection points that are close to each other and return centroids."""
+    # Remove None values from intersection_points
+    points = np.array([p for p in intersection_points if p is not None])
+
+    if len(points) == 0:
+        return []  # No valid intersection points
+
+    # Apply DBSCAN clustering
+    clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(points)
+
+    # Calculate centroids of each cluster
+    centroids = []
+    for cluster_id in set(clustering.labels_):
+        if cluster_id == -1:
+            continue  # Skip noise points
+
+        # Find points in the current cluster
+        cluster_points = points[clustering.labels_ == cluster_id]
+
+        # Calculate the centroid
+        centroid = cluster_points.mean(axis=0)
+        centroids.append((int(round(centroid[0])), int(round(centroid[1]))))
+
+    return centroids
+
 
 def detecting_lines_intersection_points(frame):
     edges = detect_lines(frame)
@@ -153,14 +179,20 @@ def detecting_lines_intersection_points(frame):
     vertical_lines_sorted = sorted(
         vertical_lines, key=lambda line: line[4], reverse=True
     )
+    intersection_points = []
     for h in horizontal_lines_sorted:
         for v in vertical_lines_sorted:
             inters = intersection(
                 (h[0], h[1]), (h[2], h[3]), (v[0], v[1]), (v[2], v[3])
             )
-            print(inters)
-            if inters:
-                cv2.circle(frame, inters, radius=10, color=(0, 0, 255), thickness=1)
+            intersection_points.append(inters)
+            #if inters:
+            #    cv2.circle(frame, inters, radius=10, color=(0, 0, 255), thickness=1)
+
+    centroids = cluster_intersection_points(intersection_points,50,1)
+    print('Number of centroids:',len(centroids))
+    for cent in centroids:
+        cv2.circle(frame, cent, radius=5, color=(0, 0, 255), thickness=10)
 
     return frame
 
