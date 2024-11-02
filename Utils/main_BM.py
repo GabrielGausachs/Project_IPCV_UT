@@ -9,7 +9,7 @@ from Utils.config import (
     OUTPUT_NAME_VIDEO
 )
 from Utils.line_detection import line_detection
-from Utils.line_detection_ani import detecting_lines_intersection_points
+from Utils.line_detection_BM import detecting_lines_intersection_points
 
 def main(input_video_file: str, output_video_file: str):
     # OpenCV video objects to work with
