@@ -7,7 +7,7 @@ def get_ad_position_field(
     field_scale=1.0,
     field_size=(105, 68),
     field_padding=5,
-    side="right",
+    ad_side="right",
     banner_scale=0.75,
     v_padding=10,
     h_padding=0.1,
@@ -32,7 +32,7 @@ def get_ad_position_field(
     banner_width = banner_width * banner_scale
 
     # Position the banner outside the specified goal line
-    if side == "left":
+    if ad_side == "left":
         rotated_ad_image = cv2.rotate(ad_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
         # Outside the left goal line
         x0, x1 = -banner_width - h_padding, -h_padding
@@ -49,8 +49,8 @@ def get_ad_position_field(
     points = [
         [x0, y0],
         [x1, y0],
-        [x1, y1],
         [x0, y1],
+        [x1, y1],
     ]
 
     return (
@@ -61,9 +61,7 @@ def get_ad_position_field(
 
 def get_ad_position_frame(ad_position_field, H):
     # Project to video coordinates using the inverse homography
-    ad_position_video = cv2.perspectiveTransform(ad_position_field.reshape(-1, 1, 2), H)
-
-    ad_position_video = ad_position_video.reshape(-1, 2)
+    ad_position_video = cv2.perspectiveTransform(np.array([ad_position_field]), H)[0]
 
     return np.array(
         ad_position_video,

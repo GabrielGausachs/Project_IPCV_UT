@@ -4,16 +4,24 @@ import numpy as np
 
 def track_frame_points(prev_frame, current_frame, current_frame_points):
     """
-    Tracks points between frames using Lucas-Kanade optical flow.
+    Track points from the current frame to the next frame using the
+    Lucas-Kanade optical flow algorithm.
 
-    Parameters:
-    - prev_frame: Previous frame with Hough lines and corner intersections (colored).
-    - current_frame: Current frame with Hough lines and corner intersections (colored).
-    - old_frame_points: Points (e.g., corners) to track in the frame (Nx2 array).
+    Parameters
+    ----------
+    prev_frame : numpy.ndarray
+        The previous frame in the video.
+    current_frame : numpy.ndarray
+        The current frame in the video.
+    current_frame_points : numpy.ndarray
+        The points from the current frame to track.
 
-    Returns:
-    - new_frame_points: Updated points in the current frame (Nx2 array).
-    - status: Array indicating if a point was successfully tracked.
+    Returns
+    -------
+    new_frame_points : numpy.ndarray
+        The tracked points in the next frame.
+    status : numpy.ndarray
+        A boolean array indicating the success of tracking for each point.
     """
 
     # Convert frames to grayscale for optical flow tracking

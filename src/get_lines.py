@@ -92,11 +92,3 @@ def get_hough_lines(edge_frame: np.ndarray, original_frame: np.ndarray) -> tuple
                 cv2.line(edge_frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
 
     return vertical_lines, horizontal_lines, original_frame, edge_frame
-
-
-def get_lines(frame):
-    edge_frame = detect_lines(frame)
-    v_lines, h_lines, annotated_frame, annotated_edge_frame = get_hough_lines(
-        edge_frame, frame
-    )
-    return v_lines, h_lines, annotated_frame, annotated_edge_frame, edge_frame

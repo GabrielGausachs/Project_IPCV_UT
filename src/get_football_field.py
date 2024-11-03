@@ -4,26 +4,56 @@ from matplotlib import patches
 def create_field(
     ax,
     field_size=(105, 68),
-    padding=5,
-    scale=1.0,
+    field_padding=5,
+    field_scale=1.0,
 ):
+    """
+    Create a football pitch plot with various elements.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The axes object to draw the plot on.
+    field_size : tuple, optional
+        The size of the football field. Default is (105, 68).
+    field_padding : float, optional
+        Padding around the field boundary in meters. Default is 5.
+    field_scale : float, optional
+        Scale factor for the plot. Default is 1.0.
+
+    Returns
+    -------
+    None
+    """
     field_length, field_width = field_size
-    padding = padding * scale
-    length = field_length * scale
-    width = field_width * scale
-    goal_length = 7.3 * scale
-    penalty_area_length = 40.3 * scale
-    penalty_area_width = 16.5 * scale
-    goal_area_extension = 5.5 * scale
+    field_padding = field_padding * field_scale
+    length = field_length * field_scale
+    width = field_width * field_scale
+    goal_length = 7.3 * field_scale
+    penalty_area_length = 40.3 * field_scale
+    penalty_area_width = 16.5 * field_scale
+    goal_area_extension = 5.5 * field_scale
     goal_area_length = goal_area_extension + goal_length + goal_area_extension
-    centre_circle_radius = 9.15 * scale
-    penalty_mark_length = 11 * scale
-    penalty_arc_radius = 9.15 * scale
+    centre_circle_radius = 9.15 * field_scale
+    penalty_mark_length = 11 * field_scale
+    penalty_arc_radius = 9.15 * field_scale
 
     # Draw field outline
     ax.plot(
-        [-padding, -padding, length + padding, length + padding, -padding],
-        [-padding, width + padding, width + padding, -padding, -padding],
+        [
+            -field_padding,
+            -field_padding,
+            length + field_padding,
+            length + field_padding,
+            -field_padding,
+        ],
+        [
+            -field_padding,
+            width + field_padding,
+            width + field_padding,
+            -field_padding,
+            -field_padding,
+        ],
         color="grey",
     )
 
@@ -165,7 +195,7 @@ def create_field(
         ax.add_patch(corner_circle)
 
     # Set limits and aspect ratio
-    ax.set_xlim(-padding, length + padding)
-    ax.set_ylim(-padding, width + padding)
+    ax.set_xlim(-field_padding, length + field_padding)
+    ax.set_ylim(-field_padding, width + field_padding)
     ax.set_aspect("equal")
     ax.axis("off")

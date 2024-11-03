@@ -52,7 +52,9 @@ def select_points(fig, ax_field, ax_frame, num_points):
     return selected_points_field, selected_points_frame
 
 
-def get_points(frame, num_points, field_size=(105, 68), scale=1.0):
+def get_points(
+    frame, num_points, field_size=(105, 68), field_padding=5, field_scale=1.0
+):
     # Create football field image and side-by-side subplots in a single figure
     # fig, (ax_field, ax_frame) = plt.subplots(1, 2, figsize=(12, 6))
     # Create a figure with a specific size
@@ -69,7 +71,12 @@ def get_points(frame, num_points, field_size=(105, 68), scale=1.0):
     ax_frame.set_title("Video Frame")
 
     # Draw the field on the left subplot
-    create_field(ax_field, field_size=field_size, scale=scale)
+    create_field(
+        ax_field,
+        field_size=field_size,
+        field_padding=field_padding,
+        field_scale=field_scale,
+    )
 
     # Display the video frame on the right subplot
     ax_frame.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
