@@ -37,7 +37,7 @@ def find_intersections(vertical_lines, horizontal_lines):
     return intersections
 
 
-def cluster_intersections(intersections, eps=10, min_samples=1):
+def cluster_intersections(intersections, eps=100, min_samples=2):
     """
     Groups nearby intersection points using DBSCAN clustering.
     Args:

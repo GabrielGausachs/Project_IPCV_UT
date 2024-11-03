@@ -51,7 +51,7 @@ def detect_lines(frame):
     combined_edges = cv2.bitwise_or(edges_small, edges_large)
 
     # Use morphological operations to clean up the edges
-    kernel = np.ones((5, 5), np.uint8)
+    kernel = np.ones((3, 3), np.uint8)
     final_edges = cv2.morphologyEx(
         combined_edges, cv2.MORPH_CLOSE, kernel, iterations=1
     )
@@ -81,6 +81,7 @@ def get_hough_lines(edge_frame: np.ndarray, original_frame: np.ndarray) -> tuple
             if -10 < angle < 10:  # Horizontal lines
                 horizontal_lines.append((x1, y1, x2, y2, length, angle))
                 cv2.line(original_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.line(edge_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
             elif (
                 (80 < abs(angle) < 100)
                 or (angle > 10 and angle < 80)
@@ -88,10 +89,14 @@ def get_hough_lines(edge_frame: np.ndarray, original_frame: np.ndarray) -> tuple
             ):  # Allow near-vertical lines
                 vertical_lines.append((x1, y1, x2, y2, length, angle))
                 cv2.line(original_frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
+                cv2.line(edge_frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
 
-    return vertical_lines, horizontal_lines, original_frame
+    return vertical_lines, horizontal_lines, original_frame, edge_frame
 
 
 def get_lines(frame):
     edge_frame = detect_lines(frame)
-    return get_hough_lines(edge_frame, frame)
+    v_lines, h_lines, annotated_frame, annotated_edge_frame = get_hough_lines(
+        edge_frame, frame
+    )
+    return v_lines, h_lines, annotated_frame, annotated_edge_frame, edge_frame
