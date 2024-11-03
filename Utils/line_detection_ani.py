@@ -15,8 +15,6 @@ def mask_field(frame, num=10):
     min_hue = max(peak_idx - num, 0)
     max_hue = min(peak_idx + num, 179)
 
-    print(min_hue, max_hue)
-
     # # Define range for green color (field)
     lower_green = np.array([min_hue, 50, 50])  # Adjust these values as needed
     upper_green = np.array([max_hue, 255, 255])
@@ -141,6 +139,7 @@ def cluster_intersection_points(intersection_points, eps=10, min_samples=1):
         centroid = cluster_points.mean(axis=0)
         centroids.append((int(round(centroid[0])), int(round(centroid[1]))))
 
+
     return centroids
 
 
@@ -191,9 +190,44 @@ def detecting_lines_intersection_points(frame):
 
     centroids = cluster_intersection_points(intersection_points,50,1)
     print('Number of centroids:',len(centroids))
-    for cent in centroids:
-        cv2.circle(frame, cent, radius=5, color=(0, 0, 255), thickness=10)
+    #for cent in centroids:
+    #    cv2.circle(frame, cent, radius=5, color=(0, 0, 255), thickness=10)
 
+    centroids_sorted = sorted(centroids, key=lambda point: point[1])
+    for cent in centroids_sorted[:4]:
+        cv2.circle(frame, cent, radius=5, color=(0, 0, 255), thickness=10)
+        # Prepare the text for coordinates
+        text = f"({cent[0]}, {cent[1]})"
+        
+        # Define the position for the text
+        text_position = (cent[0] + 10, cent[1] - 10)  # Slightly offset from the circle
+        
+        # Put the text on the image
+        cv2.putText(frame, text, text_position, cv2.FONT_HERSHEY_SIMPLEX, 
+                    fontScale=3, color=(255, 255, 255), thickness=3)  # White text
+
+    print(centroids_sorted)
+    y_range = 100
+    x_range = 700
+
+    for i, (x1,y1) in enumerate(centroids_sorted):
+        print(i)
+        # Define the rectangle boundaries
+        found_nearby = False
+        for j, (x2, y2) in enumerate(centroids_sorted):
+            if i != j:  # Skip the same point
+                if abs(y2-y1) < 50:
+                    if 1000 > abs(x2-x1) > 300:
+                        found_nearby = True
+                        break 
+
+    image_height, image_width = frame.shape[:2]
+    if found_nearby:
+        # Calculate rectangle coordinates with boundary checks
+        top_left = (max(0, x1 - x_range), max(0, y1 - y_range))
+        bottom_right = (min(image_width - 1, x1 + x_range), min(image_height - 1, y1 + y_range))
+        
+        cv2.rectangle(frame, top_left, bottom_right, (0, 0, 255), 2)
     return frame
 
 
