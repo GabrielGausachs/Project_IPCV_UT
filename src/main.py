@@ -162,7 +162,7 @@ def main(
                     # Get the automatically detected points for homography
                     # Here, Field points are thegoal area points, and will be our 2D plane
                     field_points = np.array(
-                        [[0, 0], [7.32, 0], [0, 5.5], [7.32, 5.5]], dtype="float32"
+                        [[0, 0], [0, 5.5], [18.32, 0], [18.32, 5.5]], dtype="float32"
                     )
 
                     # Frame points are the goal area points detected automatically from the frame
@@ -171,10 +171,10 @@ def main(
                     # Here, ad position are selected in our 2D plane w.r.t goal area points.
                     ad_position_field = np.array(
                         [
-                            [8.0, -2.0],
-                            [11.0, -2.0],
-                            [8.0, -0.25],
-                            [11.0, -0.25],
+                            [-6.0, 6.6],    # Bottom-Left
+                            [-6.0, 8.5],    # Top-Left
+                            [ 0.0, 6.6],    # Bottom-right
+                            [0.0, 8.5]      # Top-right
                         ],
                         dtype="float32",
                     )
