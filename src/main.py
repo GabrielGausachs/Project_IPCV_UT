@@ -23,8 +23,8 @@ def main(
     field_size: tuple = (105, 68),
     field_padding: float = 5,
     field_scale: int = 1.0,
-    h_padding: float = 0.5,
-    v_padding: float = 10,
+    h_padding: float = 0,
+    v_padding: float = 13,
     banner_scale: float = 0.5,
 ):
     """
@@ -121,6 +121,7 @@ def main(
         )
         # Get the unique intersections, i.e. detect the corners
         field_corners = get_unique_intersections(v_lines, h_lines)
+        print("Field Corners:", field_corners)
 
         # Draw the detected corners
         annotated_frame = draw_points(annotated_frame, field_corners, color=(0, 0, 255))
@@ -172,32 +173,6 @@ def main(
         # Update frame and points for the next iteration
         prev_frame = gray_frame.copy()
 
-        # OPTIONAL- Perform calibration
-        # # Get calibration and reprojected points
-        # rotation_vector, translation_vector, reprojected_points = get_calibration(
-        #     field_points, frame_points, frame_width, frame_height
-        # )
-
-        # # Print the reprojected points for validation
-        # for original, reprojected in zip(frame_points, reprojected_points):
-        #     print(f"Original: {original}, Reprojected: {reprojected}")
-
-        # # Calculate reprojection error
-        # error = np.sqrt(
-        #     np.sum((frame_points - reprojected_points) ** 2) / len(frame_points)
-        # )
-        # print(f"Reprojection Error: {error}")
-
-        # # Visualize the reprojected points
-        # for original, reprojected in zip(frame_points, reprojected_points):
-        #     cv2.circle(annotated_frame, tuple(original.astype(int)), 5, (0, 255, 255), 4)
-        #     cv2.circle(annotated_frame, tuple(reprojected.astype(int)), 5, (255, 120, 0), 4)
-        # cv2.imshow("Points Validation", annotated_frame)
-
-        # print(field_points.shape)
-        # print(frame_points.shape)
-        ## OPTIONAL - Till here ##
-
         # Calculate homography
         # Use reprojected points if you want to use calibrated points
         H, status = cv2.findHomography(field_points, frame_points, cv2.RANSAC)
@@ -209,22 +184,7 @@ def main(
         )
         print("Ad Position in Video Frame:", ad_position_video)
 
-        # Calculate the average position in the video plane
-        # Append the current ad position to the buffer
-        ad_position_buffer.append(ad_position_video)
-        if len(ad_position_buffer) > buffer_size:
-            ad_position_buffer.pop(0)  # Remove oldest entry if buffer is full
-
-        ## OPTIONAL - Use buffer to average ad position ##
-        # average_ad_position = np.mean(ad_position_buffer, axis=0)
-        ## OPTIONAL - Till here ##
-
         # Visualize the ad position in the video plane
-        for point in ad_position_video:
-            cv2.circle(
-                annotated_frame, (int(point[0]), int(point[1])), 5, (0, 255, 255), -1
-            )
-
         annotated_frame = draw_points(
             annotated_frame,
             ad_position_video,
@@ -251,19 +211,15 @@ def main(
 if __name__ == "__main__":
     ad_path = "banners/jumbo_banner.png"
 
-    video_path = "football_videos/video5.mp4"
-    output_path = "football_videos/output/output_video5.mp4"
+    # video_path = "football_videos/video5.mp4"
+    # output_path = "football_videos/output/output_video5.mp4"
 
     # video_path = "football_videos/soccer_video_example1.mp4"
     # output_path = "football_videos/output/output_soccer_video_example1.mp4"
 
-    # video_path = "football_videos/in_video4.mp4"
-    # output_path = "football_videos/output/out_video_test.mp4"
+    video_path = "football_videos/in_video2.mp4"
+    output_path = "football_videos/output/out_video2.mp4"
 
     main(
-        video_path,
-        output_path,
-        ad_path,
-        ad_side="right",
-        automatic=False,
+        video_path, output_path, ad_path, ad_side="right", automatic=True, num_points=4
     )
