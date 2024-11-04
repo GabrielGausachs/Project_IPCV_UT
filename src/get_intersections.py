@@ -78,7 +78,7 @@ def draw_points(
     points,
     color=(0, 255, 0),
     marker_type=cv2.MARKER_CROSS,
-    marker_size=10,
+    marker_size=20,
     thickness=2,
 ):
     """
