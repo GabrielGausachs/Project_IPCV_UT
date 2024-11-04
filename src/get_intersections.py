@@ -79,7 +79,7 @@ def draw_points(
     color=(0, 255, 0),
     marker_type=cv2.MARKER_CROSS,
     marker_size=40,
-    thickness=2,
+    thickness=5,
 ):
     """
     Draws custom markers at each corner point on the frame.
