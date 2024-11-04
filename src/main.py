@@ -5,10 +5,10 @@ import numpy as np
 
 from get_detected_points import get_detected_points
 from get_lines import detect_lines, get_hough_lines
-from get_intersections import get_intersections
+from get_intersections import draw_points, get_unique_intersections
 from get_points import get_points
 from get_calibration import get_calibration
-from get_ad_position import get_ad_position_frame, get_ad_position_field
+from get_ad_position import get_ad_position_video, get_ad_position_field
 from get_ad_overlay_frame import overlay_ad_on_frame
 from get_tracked_points import track_frame_points
 
@@ -23,7 +23,7 @@ def main(
     field_size: tuple = (105, 68),
     field_padding: float = 5,
     field_scale: int = 1.0,
-    h_padding: float = 0.2,
+    h_padding: float = 0.5,
     v_padding: float = 10,
     banner_scale: float = 0.5,
 ):
@@ -119,16 +119,12 @@ def main(
         v_lines, h_lines, annotated_frame, annotated_edge_frame = get_hough_lines(
             edge_frame, frame
         )
-
         # Get the unique intersections, i.e. detect the corners
-        field_corners = get_intersections(v_lines, h_lines)
+        field_corners = get_unique_intersections(v_lines, h_lines)
 
-        # Visualize the intersections with red dot
-        for pt in field_corners:
-            cv2.circle(annotated_frame, pt, 5, (0, 0, 255), -1)
-            cv2.circle(annotated_edge_frame, pt, 5, (0, 0, 255), -1)
-
-        cv2.imshow("Corners Detected Frame", annotated_frame)
+        # Draw the detected corners
+        annotated_frame = draw_points(annotated_frame, field_corners, color=(0, 0, 255))
+        # cv2.imshow("Corners Detected Frame", annotated_frame)
 
         # Get field points and frame points for homography
         if field_points is None or frame_points is None:
@@ -140,7 +136,7 @@ def main(
                 )
 
                 # Frame points are the goal area points detected automatically from the frame
-                frame_points = get_detected_points(h_lines, v_lines)
+                frame_points = get_detected_points(field_corners)
 
                 # Here, ad position are selected in our 2D plane w.r.t goal area points.
                 ad_position_field = np.array(
@@ -207,7 +203,7 @@ def main(
         H, status = cv2.findHomography(field_points, frame_points, cv2.RANSAC)
 
         # Get the ad position in the video plane
-        ad_position_video = get_ad_position_frame(
+        ad_position_video = get_ad_position_video(
             ad_position_field,
             H,
         )
@@ -228,6 +224,13 @@ def main(
             cv2.circle(
                 annotated_frame, (int(point[0]), int(point[1])), 5, (0, 255, 255), -1
             )
+
+        annotated_frame = draw_points(
+            annotated_frame,
+            ad_position_video,
+            color=(0, 255, 255),
+            marker_type=cv2.MARKER_DIAMOND,
+        )
         cv2.imshow("Ad Position Frame", annotated_frame)
 
         # Overlay the ad on the video
@@ -248,18 +251,19 @@ def main(
 if __name__ == "__main__":
     ad_path = "banners/jumbo_banner.png"
 
-    # video_path = "football_videos/video_example1.mp4"
+    video_path = "football_videos/video5.mp4"
+    output_path = "football_videos/output/output_video5.mp4"
 
-    # video_path = "football_videos/video5.mp4"
-    # output_path = "football_videos/output/output_video5.mp4"
+    # video_path = "football_videos/soccer_video_example1.mp4"
+    # output_path = "football_videos/output/output_soccer_video_example1.mp4"
 
-    video_path = "football_videos/soccer_video_example1.mp4"
-    output_path = "football_videos/output/output_soccer_video_example1.mp4"
+    # video_path = "football_videos/in_video4.mp4"
+    # output_path = "football_videos/output/out_video_test.mp4"
 
     main(
         video_path,
         output_path,
         ad_path,
-        ad_side="left",
+        ad_side="right",
         automatic=False,
     )

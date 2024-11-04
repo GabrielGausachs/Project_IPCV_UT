@@ -59,7 +59,7 @@ def get_ad_position_field(
     )
 
 
-def get_ad_position_frame(ad_position_field, H):
+def get_ad_position_video(ad_position_field, H):
     # Project to video coordinates using the inverse homography
     ad_position_video = cv2.perspectiveTransform(np.array([ad_position_field]), H)[0]
 

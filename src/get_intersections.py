@@ -1,3 +1,4 @@
+import cv2
 from sklearn.cluster import DBSCAN
 import numpy as np
 
@@ -72,7 +73,33 @@ def cluster_intersections(intersections, eps=100, min_samples=2):
     return unique_intersections
 
 
-def get_intersections(vertical_lines, horizontal_lines):
+def draw_points(
+    frame,
+    points,
+    color=(0, 255, 0),
+    marker_type=cv2.MARKER_CROSS,
+    marker_size=10,
+    thickness=2,
+):
+    """
+    Draws custom markers at each corner point on the frame.
+
+    Parameters:
+    - frame: The image on which to draw the points.
+    - points: List of tuples (x, y) for each corner point.
+    - color: Color of the marker (default is green).
+    - marker_type: Type of marker, e.g., cv2.MARKER_CROSS.
+    - marker_size: Size of the marker.
+    - thickness: Thickness of the marker lines.
+    """
+    for x, y in points:
+        cv2.drawMarker(
+            frame, (int(x), int(y)), color, marker_type, marker_size, thickness
+        )
+    return frame
+
+
+def get_unique_intersections(vertical_lines, horizontal_lines):
     intersections = find_intersections(vertical_lines, horizontal_lines)
     unique_intersections = cluster_intersections(intersections)
     return unique_intersections

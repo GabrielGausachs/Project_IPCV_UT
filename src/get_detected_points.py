@@ -2,25 +2,6 @@ import numpy as np
 from sklearn.cluster import DBSCAN
 
 
-def cluster_intersection_points(intersection_points, eps=10, min_samples=1):
-    points = np.array([p for p in intersection_points if p is not None])
-
-    if len(points) == 0:
-        return []
-
-    clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(points)
-
-    centroids = []
-    for cluster_id in set(clustering.labels_):
-        if cluster_id == -1:
-            continue
-        cluster_points = points[clustering.labels_ == cluster_id]
-        centroid = cluster_points.mean(axis=0)
-        centroids.append((int(round(centroid[0])), int(round(centroid[1]))))
-
-    return centroids
-
-
 # Neighbor check for goal line points
 def filter_goal_line_points(centroids, max_x_dist=300, max_y_dist=30):
     filtered_points = []
@@ -59,40 +40,7 @@ def order_goal_line_points(points):
     )
 
 
-# Calculate intersection between two line segments
-def intersection(o1, p1, o2, p2):
-    o1, p1, o2, p2 = map(np.array, [o1, p1, o2, p2])
-    d1 = p1 - o1
-    d2 = p2 - o2
-    x = o2 - o1
-    cross = d1[0] * d2[1] - d1[1] * d2[0]
-
-    if abs(cross) < 1e-8:
-        return None
-    t1 = (x[0] * d2[1] - x[1] * d2[0]) / cross
-    r = o1 + d1 * t1
-    if (
-        min(o1[0], p1[0]) <= r[0] <= max(o1[0], p1[0])
-        and min(o1[1], p1[1]) <= r[1] <= max(o1[1], p1[1])
-        and min(o2[0], p2[0]) <= r[0] <= max(o2[0], p2[0])
-        and min(o2[1], p2[1]) <= r[1] <= max(o2[1], p2[1])
-    ):
-        return (int(round(r[0])), int(round(r[1])))
-    return None
-
-
-def get_detected_points(horizontal_lines, vertical_lines):
-    intersection_points = []
-    for h in horizontal_lines:
-        for v in vertical_lines:
-            inters = intersection(
-                (h[0], h[1]), (h[2], h[3]), (v[0], v[1]), (v[2], v[3])
-            )
-            intersection_points.append(inters)
-
-    # Cluster intersection points and calculate centroids
-    centroids = cluster_intersection_points(intersection_points, eps=50, min_samples=1)
-
+def get_detected_points(centroids):
     # Filter and order goal line points based on neighbor checking
     goal_line_points = filter_goal_line_points(centroids, max_x_dist=300, max_y_dist=30)
     tracking_points = order_goal_line_points(goal_line_points)

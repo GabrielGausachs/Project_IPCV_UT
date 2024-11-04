@@ -33,31 +33,37 @@ def mask_field(frame, num=10):
 
 
 def detect_lines(frame):
-    # Convert to HSV and mask green areas
+    # Step 1: Mask field (assuming `mask_field` removes green areas)
     masked_frame = mask_field(frame)
 
-    # Convert frame to grayscale
+    # Step 2: Convert frame to grayscale
     gray = cv2.cvtColor(masked_frame, cv2.COLOR_BGR2GRAY)
 
-    # Apply Gaussian blurs with different sigma values
-    blurred_small = cv2.GaussianBlur(gray, (3, 3), 1)  # Small sigma
-    blurred_large = cv2.GaussianBlur(gray, (5, 5), 3)  # Larger sigma
+    # Step 3: Apply Contrast Limited Adaptive Histogram Equalization (CLAHE)
+    # clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+    # enhanced_gray = clahe.apply(gray)
 
-    # Perform edge detection on each blurred image
-    edges_small = cv2.Canny(blurred_small, 40, 70)
-    edges_large = cv2.Canny(blurred_large, 80, 100)
+    # Step 4: Apply Gaussian blur
+    blurred_small = cv2.GaussianBlur(gray, (5, 5), 1)
+    edges_small = cv2.Canny(blurred_small, 35, 80)
 
-    # Combine edges from both scales
+    blurred_large = cv2.GaussianBlur(gray, (7, 7), 2)
+    edges_large = cv2.Canny(blurred_large, 50, 100)
+
+    # Step 5: Combine edges from both scales
     combined_edges = cv2.bitwise_or(edges_small, edges_large)
 
-    # Use morphological operations to clean up the edges
-    kernel = np.ones((3, 3), np.uint8)
-    final_edges = cv2.morphologyEx(
-        combined_edges, cv2.MORPH_CLOSE, kernel, iterations=1
-    )
+    # Step 6: Use morphological operations to clean up edges
+    kernel_small = np.ones((3, 3), np.uint8)
+    kernel_big = np.ones((5, 5), np.uint8)
+    dilated = cv2.dilate(combined_edges, kernel_big, iterations=2)
+    eroded = cv2.erode(dilated, kernel_big, iterations=1)
+    dilated = cv2.dilate(eroded, kernel_small, iterations=1)
+    final_edges = cv2.erode(eroded, kernel_big, iterations=1)
 
-    kernel = np.ones((3, 3), np.uint8)
-    final_edges = cv2.morphologyEx(final_edges, cv2.MORPH_CLOSE, kernel, iterations=2)
+    # Step 8: Display the processed frames for debugging
+    # cv2.imshow("Enhanced Gray", gray)
+    # cv2.imshow("Final Edges", final_edges)
 
     return final_edges
 
@@ -68,7 +74,7 @@ def get_hough_lines(edge_frame: np.ndarray, original_frame: np.ndarray) -> tuple
 
     # Detect lines using Hough Transform
     lines = cv2.HoughLinesP(
-        edge_frame, 1, np.pi / 180, 120, minLineLength=80, maxLineGap=8
+        edge_frame, 1, np.pi / 180, 120, minLineLength=100, maxLineGap=8
     )
 
     if lines is not None:
