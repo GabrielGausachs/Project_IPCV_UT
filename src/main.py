@@ -16,6 +16,7 @@ frame_saved = False
 
 
 def main(
+    video_name: str,
     input_video_path: str,
     output_video_path: str,
     ad_image_path: str,
@@ -26,8 +27,8 @@ def main(
     field_padding: float = 5,
     field_scale: int = 1.0,
     h_padding: float = 0,
-    v_padding: float = 13,
-    banner_scale: float = 0.5,
+    v_padding: float = 10,
+    banner_scale: float = 0.3,
 ):
     """
     Main function to overlay advertisement on a video.
@@ -111,6 +112,10 @@ def main(
 
         # Copy the original frame
         original_frame = frame.copy()
+        if not frame_saved:
+            cv2.imwrite(
+                f"saved_images/orginal_frame_{video_name}.jpg", original_frame
+            )  # Save the frame as an image
 
         # Convert frame to grayscale
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -131,9 +136,8 @@ def main(
 
         if not frame_saved:
             cv2.imwrite(
-                "intersect_points.jpg", annotated_frame
+                f"saved_images/intersect_points_{video_name}.jpg", annotated_frame
             )  # Save the frame as an image
-            frame_saved = True  # Update the flag to indicate the frame has been saved
         # cv2.imshow("Corners Detected Frame", annotated_frame)
 
         # Get field points and frame points for homography
@@ -185,6 +189,7 @@ def main(
         # Calculate homography
         # Use reprojected points if you want to use calibrated points
         H, status = cv2.findHomography(field_points, frame_points, cv2.RANSAC)
+        print("Homography Matrix:\n", H)
 
         # Get the ad position in the video plane
         ad_position_video = get_ad_position_video(
@@ -201,13 +206,25 @@ def main(
             marker_type=cv2.MARKER_DIAMOND,
         )
         cv2.imshow("Ad Position Frame", annotated_frame)
+        if not frame_saved:
+            cv2.imwrite(
+                f"saved_images/ad_position_frame_{video_name}.jpg",
+                annotated_frame,
+            )  # Save the frame as an image
 
         # Overlay the ad on the video
         overlay_frame = overlay_ad_on_frame(
             original_frame, rotated_ad_image, ad_position_video
         )
 
+        if not frame_saved:
+            cv2.imwrite(
+                f"saved_images/ad_overlay_{video_name}_{"automatic" if automatic else 'manual'}.jpg",
+                overlay_frame,
+            )  # Save the frame as an image
+
         cv2.imshow("Overlay Frame", overlay_frame)
+        frame_saved = True  # Update the flag to indicate the frame has been saved
         out.write(overlay_frame)
         if cv2.waitKey(30) & 0xFF == 27:  # ESC to exit
             break
@@ -226,9 +243,16 @@ if __name__ == "__main__":
     # video_path = "football_videos/soccer_video_example1.mp4"
     # output_path = "football_videos/output/output_soccer_video_example1.mp4"
 
-    video_path = "football_videos/in_video2.mp4"
-    output_path = "football_videos/output/out_video2.mp4"
+    video_name = "in_video2"
+    input_path = f"football_videos/{video_name}.mp4"
+    output_path = f"football_videos/output/out_{video_name}.mp4"
 
     main(
-        video_path, output_path, ad_path, ad_side="right", automatic=True, num_points=4
+        video_name,
+        input_path,
+        output_path,
+        ad_path,
+        ad_side="right",
+        automatic=True,
+        num_points=4,
     )
