@@ -31,10 +31,19 @@ def mask_field(frame, num=10):
 
     return masked_frame
 
+frame_saved = False
 
 def detect_lines(frame):
+
+    global frame_saved 
+
     # Step 1: Mask field (assuming `mask_field` removes green areas)
     masked_frame = mask_field(frame)
+
+    if not frame_saved:
+        cv2.imwrite('masked_frame.jpg', masked_frame)  # Save the frame as an image
+        frame_saved = True  # Update the flag to indicate the frame has been saved
+
 
     # Step 2: Convert frame to grayscale
     gray = cv2.cvtColor(masked_frame, cv2.COLOR_BGR2GRAY)

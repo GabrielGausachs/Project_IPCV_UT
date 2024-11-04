@@ -265,5 +265,5 @@ if __name__ == "__main__":
         output_path,
         ad_path,
         ad_side="right",
-        automatic=False,
+        automatic=True,
     )
