@@ -67,7 +67,7 @@ def detect_lines(frame):
     final_edges = cv2.erode(eroded, kernel_big, iterations=1)
 
     if not frame_saved:
-        cv2.imwrite('final_edges.jpg', masked_frame)  # Save the frame as an image
+        cv2.imwrite('final_edges.jpg', final_edges)  # Save the frame as an image
         frame_saved = True  # Update the flag to indicate the frame has been saved
 
 
