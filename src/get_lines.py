@@ -33,8 +33,11 @@ def mask_field(frame, num=10):
 
 
 def detect_lines(frame):
+
+
     # Step 1: Mask field (assuming `mask_field` removes green areas)
     masked_frame = mask_field(frame)
+
 
     # Step 2: Convert frame to grayscale
     gray = cv2.cvtColor(masked_frame, cv2.COLOR_BGR2GRAY)
@@ -60,6 +63,8 @@ def detect_lines(frame):
     eroded = cv2.erode(dilated, kernel_big, iterations=1)
     dilated = cv2.dilate(eroded, kernel_small, iterations=1)
     final_edges = cv2.erode(eroded, kernel_big, iterations=1)
+
+
 
     # Step 8: Display the processed frames for debugging
     # cv2.imshow("Enhanced Gray", gray)
