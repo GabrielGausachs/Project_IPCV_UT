@@ -31,11 +31,9 @@ def mask_field(frame, num=10):
 
     return masked_frame
 
-frame_saved = False
 
 def detect_lines(frame):
 
-    global frame_saved 
 
     # Step 1: Mask field (assuming `mask_field` removes green areas)
     masked_frame = mask_field(frame)
@@ -65,10 +63,6 @@ def detect_lines(frame):
     eroded = cv2.erode(dilated, kernel_big, iterations=1)
     dilated = cv2.dilate(eroded, kernel_small, iterations=1)
     final_edges = cv2.erode(eroded, kernel_big, iterations=1)
-
-    if not frame_saved:
-        cv2.imwrite('final_edges.jpg', final_edges)  # Save the frame as an image
-        frame_saved = True  # Update the flag to indicate the frame has been saved
 
 
 

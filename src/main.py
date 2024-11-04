@@ -12,6 +12,8 @@ from get_ad_position import get_ad_position_video, get_ad_position_field
 from get_ad_overlay_frame import overlay_ad_on_frame
 from get_tracked_points import track_frame_points
 
+frame_saved = False
+
 
 def main(
     input_video_path: str,
@@ -62,6 +64,7 @@ def main(
     banner_scale : float, optional
         Scale factor for the advertisement image.
     """
+    global frame_saved
     cv2.namedWindow("Overlay Frame", cv2.WINDOW_NORMAL)
 
     # Load video and get video properties
@@ -124,6 +127,10 @@ def main(
 
         # Draw the detected corners
         annotated_frame = draw_points(annotated_frame, field_corners, color=(0, 0, 255))
+
+        if not frame_saved:
+            cv2.imwrite('intersect_points.jpg', annotated_frame)  # Save the frame as an image
+            frame_saved = True  # Update the flag to indicate the frame has been saved
         # cv2.imshow("Corners Detected Frame", annotated_frame)
 
         # Get field points and frame points for homography
