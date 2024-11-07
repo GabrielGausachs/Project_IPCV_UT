@@ -1,15 +1,29 @@
 import cv2
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
-
+frame_saved = False
 def mask_field(frame, num=10):
+    global frame_saved
     # Convert the image to the HSV color space
     im_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # Calculate the histogram for the hue channel
     hue_hist = cv2.calcHist([im_hsv], [0], None, [180], [0, 180])
     peak_idx = np.argmax(hue_hist)  # Get the dominant hue index
+
+    if frame_saved != True:
+        plt.figure()
+        plt.plot(hue_hist, color='Green')
+        plt.title("Hue Histogram")
+        plt.xlabel("Hue Value")
+        plt.ylabel("Frequency")
+        plt.xlim([0, 180])
+        plt.savefig('hue_histogram.png')
+        plt.close()
+
+        frame_saved = True
 
     # Determine hue range around the peak index
     min_hue = max(peak_idx - num, 0)
