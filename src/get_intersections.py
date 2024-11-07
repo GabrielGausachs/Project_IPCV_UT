@@ -112,7 +112,7 @@ def draw_points(
     points,
     color=(0, 255, 0),
     marker_type=cv2.MARKER_CROSS,
-    marker_size=20,
+    marker_size=35,
     thickness=4,
 ):
     """
@@ -132,8 +132,13 @@ def draw_points(
         )
     return frame
 
-
-def get_unique_intersections(vertical_lines, horizontal_lines):
+gabriel = False
+def get_unique_intersections(vertical_lines, horizontal_lines, annotated_frame):
+    global gabriel
     intersections = find_intersections(vertical_lines, horizontal_lines)
+    frame = draw_points(annotated_frame,intersections, (0,0,255))
+    if gabriel == False:
+        cv2.imwrite ('frame_not_clustering.png',frame)
+        gabriel = True
     unique_intersections = cluster_intersections(intersections)
     return unique_intersections

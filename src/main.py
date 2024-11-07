@@ -127,8 +127,9 @@ def main(
         v_lines, h_lines, annotated_frame, annotated_edge_frame = get_hough_lines(
             edge_frame, frame
         )
+        
         # Get the unique intersections, i.e. detect the corners
-        field_corners = get_unique_intersections(v_lines, h_lines)
+        field_corners = get_unique_intersections(v_lines, h_lines, annotated_frame)
         print("Field Corners:", field_corners)
 
         # Draw the detected corners
@@ -217,11 +218,11 @@ def main(
             original_frame, rotated_ad_image, ad_position_video
         )
 
-        if not frame_saved:
-            cv2.imwrite(
-                f"saved_images/ad_overlay_{video_name}_{"automatic" if automatic else 'manual'}.jpg",
-                overlay_frame,
-            )  # Save the frame as an image
+        #if not frame_saved:
+        #    cv2.imwrite(
+        #        f"saved_images/ad_overlay_{video_name}_{"automatic" if automatic else 'manual'}.jpg",
+        #        overlay_frame,
+        #    )  # Save the frame as an image
 
         cv2.imshow("Overlay Frame", overlay_frame)
         frame_saved = True  # Update the flag to indicate the frame has been saved
@@ -243,7 +244,7 @@ if __name__ == "__main__":
     # video_path = "football_videos/soccer_video_example1.mp4"
     # output_path = "football_videos/output/output_soccer_video_example1.mp4"
 
-    video_name = "in_video2"
+    video_name = "in_video1"
     input_path = f"football_videos/{video_name}.mp4"
     output_path = f"football_videos/output/out_{video_name}.mp4"
 
