@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 
 football_videos/output
+saved_images
 
 # C extensions
 *.so

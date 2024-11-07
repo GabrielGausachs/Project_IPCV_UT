@@ -3,7 +3,7 @@ from sklearn.cluster import DBSCAN
 
 
 # Neighbor check for goal line points
-def filter_goal_line_points(centroids, max_x_dist=300, max_y_dist=30):
+def filter_goal_line_points(centroids, max_x_dist=450, max_y_dist=50):
     filtered_points = []
     for i, pt1 in enumerate(centroids):
         x1, y1 = pt1
@@ -42,6 +42,6 @@ def order_goal_line_points(points):
 
 def get_detected_points(centroids):
     # Filter and order goal line points based on neighbor checking
-    goal_line_points = filter_goal_line_points(centroids, max_x_dist=300, max_y_dist=30)
+    goal_line_points = filter_goal_line_points(centroids)
     tracking_points = order_goal_line_points(goal_line_points)
     return tracking_points
