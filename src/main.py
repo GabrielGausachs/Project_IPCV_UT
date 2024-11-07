@@ -13,7 +13,7 @@ from get_ad_overlay_frame import overlay_ad_on_frame
 from get_tracked_points import track_frame_points
 
 frame_saved = False
-
+gabriel = False
 
 def main(
     video_name: str,
@@ -66,6 +66,7 @@ def main(
         Scale factor for the advertisement image.
     """
     global frame_saved
+    global gabriel
     cv2.namedWindow("Overlay Frame", cv2.WINDOW_NORMAL)
 
     # Load video and get video properties
@@ -129,11 +130,14 @@ def main(
         )
         
         # Get the unique intersections, i.e. detect the corners
-        field_corners = get_unique_intersections(v_lines, h_lines, annotated_frame)
+        field_corners = get_unique_intersections(v_lines, h_lines)
         print("Field Corners:", field_corners)
 
         # Draw the detected corners
         annotated_frame = draw_points(annotated_frame, field_corners, color=(0, 0, 255))
+        if gabriel == False:
+            cv2.imwrite('after_clustering.png',annotated_frame)
+            gabriel = True
 
         if not frame_saved:
             cv2.imwrite(

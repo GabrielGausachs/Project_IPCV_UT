@@ -132,13 +132,7 @@ def draw_points(
         )
     return frame
 
-gabriel = False
-def get_unique_intersections(vertical_lines, horizontal_lines, annotated_frame):
-    global gabriel
+def get_unique_intersections(vertical_lines, horizontal_lines):
     intersections = find_intersections(vertical_lines, horizontal_lines)
-    frame = draw_points(annotated_frame,intersections, (0,0,255))
-    if gabriel == False:
-        cv2.imwrite ('frame_not_clustering.png',frame)
-        gabriel = True
     unique_intersections = cluster_intersections(intersections)
     return unique_intersections
